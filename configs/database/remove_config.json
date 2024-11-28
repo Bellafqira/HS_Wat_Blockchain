@@ -1,0 +1,8 @@
+{
+    "data_path": "results/watermarked_images/images_dcm",
+    "save_path": "results/recovered_images/images_dcm",
+    "ext_wat_path": "results/recovered_watermark/images_dcm",
+    "blockchain_path": "blockchain/database/blockchainDB.json",
+    "data_type": "dcm",
+    "operation_type": "removal"
+}

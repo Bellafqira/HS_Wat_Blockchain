@@ -1,0 +1,6 @@
+numpy>=2.1.2
+matplotlib>=3.9.2
+pydicom>=3.0.1
+pillow>=11.0.0
+tqdm>=4.67.1
+minio>=7.2.11

@@ -1,0 +1,6 @@
+{
+    "data_path": "database/images_dcm/CT000000.dcm",
+    "blockchain_path": "blockchain/database/blockchainDB.json",
+    "data_type": "dcm",
+    "operation_type": "extraction"
+}

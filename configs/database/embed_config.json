@@ -1,0 +1,28 @@
+{
+    "data_path": "database/images_dcm",
+    "save_path": "results/watermarked_images/images_dcm",
+    "blockchain_path": "blockchain/database/blockchainDB.json",
+    "message": "ID_Paroma_Med",
+    "kernel": [
+        [
+            0,
+            0.25,
+            0
+        ],
+        [
+            0.25,
+            0,
+            0.25
+        ],
+        [
+            0,
+            0.25,
+            0
+        ]
+    ],
+    "stride": 3,
+    "t_hi": 0,
+    "bit_depth": 16,
+    "data_type": "dcm",
+    "operation_type": "embedding"
+}
