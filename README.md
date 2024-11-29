@@ -97,22 +97,6 @@ processor = BatchRemoveProcessor(remove_config)
 result = processor.process_images()
 ```
 
-## Project Structure
-
-```
-├── blockchain/
-│   └── blockchain.py          # Blockchain implementation
-├── configs/
-│   └── gen_wat_cfs.py        # Configuration generator
-├── watermarking/
-│   ├── watermark_embedder.py  # Single image embedder
-│   ├── watermark_extractor.py # Watermark extraction
-│   └── watermark_remover.py   # Watermark removal
-├── utils/
-│   └── utils.py              # Utility functions
-└── tests/                    # Test cases
-```
-
 ## Configuration Options
 
 ### Embedding Configuration
@@ -133,27 +117,130 @@ result = processor.process_images()
 - `ext_wat_path`: Path for extracted watermarks
 - `blockchain_path`: Path to blockchain database
 
+
+## Watermarking Process Overview
+
+The watermarking scheme is based on histogram shifting of prediction errors with overflow management. Here's how it works:
+
+1. **Watermark Generation**:
+   - A message string is combined with a secret key
+   - SHA256 is used to generate a 256-bit watermark
+   - The secret key generates a random sequence to determine watermarkable regions
+
+2. **Embedding Process**:
+   - For each image region where random sequence bit = 1:
+     - Apply prediction kernel to calculate neighbors' average
+     - Calculate error between center pixel and prediction
+     - If error ≥ 0, modify the pixel value using histogram shifting
+     - Handle overflow cases for pixel values near maximum
+
+3. **Extraction Process**:
+   - Use secret key to regenerate random sequence
+   - For each marked region:
+     - Recalculate prediction error
+     - Extract watermark bits from modified error values
+     - Restore original pixel values
+   - Handle overflow cases using stored positions
+
 ## Blockchain Integration
 
-The system uses a simple blockchain to store:
-- Embedding transactions
-- Extraction results
-- Removal operations
-- Image hashes and timestamps
+Our system uses a blockchain to track both watermark embedding and removal operations - a novel approach in the field. Each block contains:
 
-Each operation creates a new block with:
-- Transaction details
-- Timestamps
-- Operation parameters
-- Quality metrics
+### Embedding Block Example:
+```json
+{
+  "header": {
+    "timestamp": 1732734615.216023,
+    "previous_hash": "72b2c66ea79b...",
+    "block_number": 12
+  },
+  "info": "embedder",
+  "transaction": {
+    "total_images": 2,
+    "processed_images": 2,
+    "failed_images": [],
+    "transaction_dict": {
+      "9c8a15d306a28...": {
+        "timestamp": "1732734615.179847",
+        "secret_key": "9dd4d991c251...",
+        "message": "ID_Paroma_Med",
+        "watermark": "5d99700ef982...",
+        "kernel": [[0, 0.25, 0], [0.25, 0, 0.25], [0, 0.25, 0]],
+        "stride": 3,
+        "t_hi": 0,
+        "hash_image_wat": "9c8a15d306a28...",
+        "hash_image_orig": "59fc674587589...",
+        "bit_depth": 16,
+        "data_type": "dcm",
+        "operation_type": "embedding"
+      }
+    }
+  }
+}
+```
 
-## Error Handling
+### Removal Block Example:
+```json
+{
+  "header": {
+    "timestamp": 1732734638.984186,
+    "previous_hash": "67dcdfbbf692...",
+    "block_number": 13
+  },
+  "info": "remover",
+  "transaction": {
+    "timestamp": "1732734638.984186",
+    "operation": "remove",
+    "batch_size": 2,
+    "successful_extractions": 2,
+    "failed_extractions": 0,
+    "average_ber": 0.0,
+    "transaction_dict": {
+      "9c8a15d306a28...": {
+        "operation_type": "removal",
+        "original_image_hash": "59fc674587589...",
+        "watermarked_image_hash": "9c8a15d306a28...",
+        "recovered_image_hash": "59fc674587589...",
+        "extraction_ber": 0.0,
+        "original_watermark": "5d99700ef982...",
+        "extracted_watermark": "5d99700ef982...",
+        "removal_parameters": {
+          "kernel": [[0, 0.25, 0], [0.25, 0, 0.25], [0, 0.25, 0]],
+          "stride": 3,
+          "t_hi": 0,
+          "bit_depth": 16
+        }
+      }
+    }
+  }
+}
+```
 
-The system includes comprehensive error handling for:
-- Invalid configurations
-- File I/O errors
-- Image format issues
-- Blockchain verification failures
+## Extraction vs Removal Operations
+
+### Extraction (test_extractor)
+- Used to verify potentially modified images
+- Works even when image hash doesn't match blockchain records
+- Extracts and compares watermark content to identify original block
+- Useful for detecting and tracing modified images
+
+### Removal (test_remover_batch)
+- Requires exact image hash match in blockchain
+- Completely reverses watermarking process
+- Recovers original image
+- Creates new blockchain block to track removal operation
+- Maintains complete audit trail of image modifications
+
+## Innovation and Future Work
+
+This implementation introduces a novel approach by tracking both embedding and removal operations in the blockchain. Future improvements will include:
+
+- Block signature implementation for enhanced security
+- Encryption of sensitive data (secret keys, messages)
+- Enhanced verification mechanisms
+- Improved scalability for large image datasets
+
+These security enhancements will further strengthen the system's ability to protect and track image authenticity while maintaining the reversibility of the watermarking process.
 
 ## Contributing
 
