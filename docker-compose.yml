@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  watermarking:
+    build: .
+    volumes:
+      - ./database/images:/app/database/images
+      - ./results:/app/results
+      - ./blockchain/database:/app/blockchain/database
+      - ./configs/database:/app/configs/database
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    command: tail -f /dev/null  # Keeps container running for development
+
+  tests:
+    build: .
+    volumes:
+      - ./database/images:/app/database/images
+      - ./results:/app/results
+      - ./blockchain/database:/app/blockchain/database
+      - ./configs/database:/app/configs/database
+    command: python -m pytest tests/
