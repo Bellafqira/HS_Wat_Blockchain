@@ -1,8 +1,10 @@
 version: '3.8'
 
 services:
-  watermarking:
+  watermarking-api:
     build: .
+    ports:
+      - "8000:8000"
     volumes:
       - ./database/images:/app/database/images
       - ./results:/app/results
@@ -11,13 +13,16 @@ services:
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
-    command: tail -f /dev/null  # Keeps container running for development
+    restart: unless-stopped
 
-  tests:
+  # Optional development service
+  dev:
     build: .
     volumes:
-      - ./database/images:/app/database/images
-      - ./results:/app/results
-      - ./blockchain/database:/app/blockchain/database
-      - ./configs/database:/app/configs/database
-    command: python -m pytest tests/
+      - .:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
