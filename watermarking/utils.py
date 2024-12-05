@@ -1,7 +1,8 @@
 import secrets
 import hashlib
 from datetime import datetime
-from typing import Tuple, Union
+from pathlib import Path
+from typing import Tuple, Union, List
 from PIL import Image
 import numpy as np
 
@@ -136,3 +137,26 @@ def generate_watermark(message: str, secret_key: str) -> np.ndarray:
     """Generate watermark from message and secret key."""
     combined_input = message + secret_key
     return string_to_sha256_bits(combined_input)
+
+
+def get_image_files(supported_formats, directory: str) -> List[Path]:
+    """
+    Get all supported image files from directory.
+
+    Args:
+        directory: Directory path to scan for images
+
+    Returns:
+        List of Path objects for valid image files
+        :param directory:
+        :param supported_formats:
+    """
+    directory_path = Path(directory)
+    if not directory_path.exists():
+        raise FileNotFoundError(f"Directory not found: {directory}")
+
+    image_files = []
+    for ext in supported_formats:
+        image_files.extend(directory_path.glob(f"*{ext}"))
+
+    return sorted(set(image_files))

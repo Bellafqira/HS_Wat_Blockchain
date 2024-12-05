@@ -33,7 +33,7 @@ RUN mkdir -p /app/database/images \
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-VOLUME ["/app/database/images", "/app/results", "/app/blockchain/database"]
+VOLUME ["/app/database", "/app/results", "/app/blockchain/database", "app/configs/database"]
 
 EXPOSE 8000
 

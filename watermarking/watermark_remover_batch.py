@@ -9,65 +9,28 @@ import logging
 from tqdm import tqdm
 
 from PIL import Image
+
+from watermarking.utils import get_image_files
 from watermarking.watermark_remover import WatermarkRemove
 from blockchain.blockchain import Blockchain
 
 
 @dataclass
-class BatchExtractionResult:
-    """Data class for batch extraction results"""
-    total_images: int
-    processed_images: int
-    failed_images: List[str]
-    successful_extractions: Dict[str, float]  # image_hash: BER
-    processing_time: float
-    average_ber: float
-
-
-@dataclass
-class BatchTransaction:
+class BatchRemoveTransaction:
     """Data class for batch transaction"""
-    timestamp: str
-    operation: str = "remove"
-    batch_size: int = 0
-    successful_extractions: int = 0
-    failed_extractions: int = 0
-    average_ber: float = 0.5
+    processing_time: float
+    total_images: int = 0
+    processed_images: int = 0
+    failed_images: List[str] = None
     transaction_dict: Dict[str, dict] = None
+    average_ber: float = 0.5
 
 
 class BatchRemoveProcessor:
     def __init__(self, config):
-        self.logger = None
         self.config = config
         self.supported_formats: Set[str] = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.dcm'}
         self.blockchain = Blockchain(config.blockchain_path)
-        self.setup_logging()
-
-    def setup_logging(self):
-        """Setup logging configuration."""
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler('batch_extraction.log'),
-                logging.StreamHandler()
-            ]
-        )
-        self.logger = logging.getLogger(__name__)
-
-    def get_image_files(self, directory: str) -> List[Path]:
-        """Get all supported image files from directory recursively."""
-        directory_path = Path(directory)
-        if not directory_path.exists():
-            raise FileNotFoundError(f"Directory not found: {directory}")
-
-        image_files = []
-        for ext in self.supported_formats:
-            image_files.extend(directory_path.glob(f"*{ext}"))
-            # image_files.extend(directory_path.rglob(f"*{ext.upper()}"))
-
-        return sorted(set(image_files))  # Remove duplicates
 
     def process_single_image(self, img_path: Path, rec_path: Path, wat_path: Path) -> tuple:
         """Process a single image and return results."""
@@ -90,22 +53,20 @@ class BatchRemoveProcessor:
             )
 
         except Exception as e:
-            self.logger.error(f"Error processing {img_path.name}: {str(e)}")
+            print(f"Error processing {img_path.name}: {str(e)}")
             return img_path, False, None, None
 
-    def process_images(self) -> BatchExtractionResult:
+    def process_images(self) -> BatchRemoveTransaction:
         """Process all images in the configured directory."""
         start_time = datetime.now()
 
         # Get all image files
         try:
-            image_files = self.get_image_files(self.config.data_path)
+            image_files = get_image_files(self.supported_formats, self.config.data_path)
             total_images = len(image_files)
 
             if not total_images:
                 raise ValueError(f"No supported images found in {self.config.data_path}")
-
-            self.logger.info(f"Starting batch processing of {total_images} images...")
 
             # Create save directory
             save_path = Path(self.config.save_path)
@@ -141,15 +102,16 @@ class BatchRemoveProcessor:
             average_ber = (sum(successful_extractions.values()) / processed_images
                            if processed_images > 0 else 0.0)
 
+            processing_time = (datetime.now() - start_time).total_seconds()
+
             # Create batch transaction
-            batch_transaction = BatchTransaction(
-                timestamp=str(datetime.now().timestamp()),
-                batch_size=total_images,
-                successful_extractions=processed_images,
-                failed_extractions=len(failed_images),
+            batch_transaction = BatchRemoveTransaction(
+                total_images=total_images,
+                processed_images=processed_images,
+                failed_images=failed_images,
+                processing_time=processing_time,
                 average_ber=average_ber,
                 transaction_dict=image_transactions,
-                operation="remove"
             )
 
             # # Add to blockchain
@@ -164,28 +126,15 @@ class BatchRemoveProcessor:
             print(f"Block hash: {new_block.hash}")
             print(f"Timestamp: {datetime.fromtimestamp(new_block.header.timestamp)}")
 
-            # Create result object
-            processing_time = (datetime.now() - start_time).total_seconds()
-            result = BatchExtractionResult(
-                total_images=total_images,
-                processed_images=processed_images,
-                failed_images=failed_images,
-                successful_extractions=successful_extractions,
-                processing_time=processing_time,
-                average_ber=average_ber
-            )
+            print(f"\nBatch embedding completed in {processing_time:.2f} seconds")
+            print(f"Successfully processed: {processed_images}/{total_images} images")
 
-            # # Log results
-            # self.logger.info(f"\nBatch processing completed in {processing_time:.2f} seconds")
-            # self.logger.info(f"Successfully processed: {processed_images}/{total_images} images")
-            # self.logger.info(f"Average BER: {average_ber:.4f}")
-            #
-            # if failed_images:
-            #     self.logger.warning(f"Failed to process {len(failed_images)} images")
+            if failed_images:
+                print(f"Failed to process {len(failed_images)} images")
 
-            return result
+            return batch_transaction
 
         except Exception as e:
-            self.logger.error(f"Batch processing failed: {str(e)}")
+            print(f"Batch processing failed: {str(e)}")
             raise
 
