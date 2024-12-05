@@ -242,6 +242,117 @@ This implementation introduces a novel approach by tracking both embedding and r
 
 These security enhancements will further strengthen the system's ability to protect and track image authenticity while maintaining the reversibility of the watermarking process.
 
+
+## Docker Setup
+
+### Prerequisites
+- Docker installed on your system
+- Docker Compose installed on your system
+
+### Building the Docker Image
+
+1. Create a Dockerfile in the project root:
+```dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p database/images results blockchain/database configs/database
+
+# Expose port
+EXPOSE 8000
+
+# Command to run the application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+2. Build the image:
+```bash
+docker build -t watermarking-api .
+```
+
+### Running with Docker Compose
+
+1. Use the existing docker-compose.yml file:
+```yaml
+version: '3.8'
+
+services:
+  watermarking-api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./database/images:/app/database/images
+      - ./results:/app/results
+      - ./blockchain/database:/app/blockchain/database
+      - ./configs/database:/app/configs/database
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+```
+
+2. Start the service:
+```bash
+docker-compose up -d
+```
+
+## Testing the Docker Container
+
+### 1. Basic Health Check
+```bash
+curl http://localhost:8000/health
+```
+
+### 2. Testing Embedding
+```bash
+curl -X POST http://localhost:8000/api/watermark/embed \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data_path": "/app/database/images/test.dcm",
+    "save_path": "/app/results/watermarked.dcm",
+    "message": "test_watermark",
+    "data_type": "dcm"
+  }'
+```
+
+### 3. Testing Extraction
+```bash
+curl -X POST http://localhost:8000/api/watermark/extract \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data_path": "/app/results/watermarked.dcm",
+    "data_type": "dcm"
+  }'
+```
+
+### 4. Testing Removal
+```bash
+curl -X POST http://localhost:8000/api/watermark/remove \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data_path": "/app/results/watermarked.dcm",
+    "save_path": "/app/results/recovered.dcm",
+    "ext_wat_path": "/app/results/watermark.npy",
+    "data_type": "dcm"
+  }'
+```
+
 ## Contributing
 
 1. Fork the repository
