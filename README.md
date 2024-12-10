@@ -148,72 +148,170 @@ Our system uses a blockchain to track both watermark embedding and removal opera
 
 ### Embedding Block Example:
 ```json
-{
-  "header": {
-    "timestamp": 1732734615.216023,
-    "previous_hash": "72b2c66ea79b...",
-    "block_number": 12
+"18": {
+    "header": {
+      "timestamp": 1733847058.894753,
+      "previous_hash": "22959d38bf34c8fb6bd50c94c8312ba9a030a52ecb59b7a9debbb09ddbc4319b",
+      "block_number": 18
+    },
+    "info": "embedder",
+    "transaction": {
+      "total_images": 2,
+      "processed_images": 2,
+      "failed_images": [],
+      "transaction_dict": {
+        "18cd719e76ef798fc54e697bbe0e735693a96e5a9d6bd768939a0fe72e342042": {
+          "timestamp": "1733847058.753701",
+          "secret_key": "6ec15356e1b12ebdb416dc48ffe81060243627bde437804727f54c39b0a208ec",
+          "message": "string",
+          "watermark": "e71bd4ee8d9821f55f8fd8674314633c4cef5d19033c43b6e6d73cffb1624f7a",
+          "kernel": [
+            [
+              0,
+              0.25,
+              0
+            ],
+            [
+              0.25,
+              0,
+              0.25
+            ],
+            [
+              0,
+              0.25,
+              0
+            ]
+          ],
+          "stride": 3,
+          "t_hi": 0.0,
+          "hash_image_wat": "18cd719e76ef798fc54e697bbe0e735693a96e5a9d6bd768939a0fe72e342042",
+          "hash_image_orig": "59fc6745875897a58887bd29283399290a88903051fe4de3b47973b54506bf1e",
+          "bit_depth": 16,
+          "data_type": "dcm",
+          "operation_type": "embedding"
+        },
+        "e343b0dd52cc1368557d78140cec8835eae585a7ac79010568e638f2cfa024a2": {
+          "timestamp": "1733847058.834559",
+          "secret_key": "6ec15356e1b12ebdb416dc48ffe81060243627bde437804727f54c39b0a208ec",
+          "message": "string",
+          "watermark": "e71bd4ee8d9821f55f8fd8674314633c4cef5d19033c43b6e6d73cffb1624f7a",
+          "kernel": [
+            [
+              0,
+              0.25,
+              0
+            ],
+            [
+              0.25,
+              0,
+              0.25
+            ],
+            [
+              0,
+              0.25,
+              0
+            ]
+          ],
+          "stride": 3,
+          "t_hi": 0.0,
+          "hash_image_wat": "e343b0dd52cc1368557d78140cec8835eae585a7ac79010568e638f2cfa024a2",
+          "hash_image_orig": "3937b31c3c8f214852fb414a5bdd5410ed5b7cd7f0cc5b114bccb45650999ff4",
+          "bit_depth": 16,
+          "data_type": "dcm",
+          "operation_type": "embedding"
+        }
+      },
+      "processing_time": 0.159147
+    },
+    "hash": "f848ad508edc68860a201c26a4c8af0badfb8c7893b7fafc6c3be157ddc720c4"
   },
-  "info": "embedder",
-  "transaction": {
-    "total_images": 2,
-    "processed_images": 2,
-    "failed_images": [],
-    "transaction_dict": {
-      "9c8a15d306a28...": {
-        "timestamp": "1732734615.179847",
-        "secret_key": "9dd4d991c251...",
-        "message": "ID_Paroma_Med",
-        "watermark": "5d99700ef982...",
-        "kernel": [[0, 0.25, 0], [0.25, 0, 0.25], [0, 0.25, 0]],
-        "stride": 3,
-        "t_hi": 0,
-        "hash_image_wat": "9c8a15d306a28...",
-        "hash_image_orig": "59fc674587589...",
-        "bit_depth": 16,
-        "data_type": "dcm",
-        "operation_type": "embedding"
-      }
-    }
-  }
-}
 ```
 
 ### Removal Block Example:
 ```json
-{
-  "header": {
-    "timestamp": 1732734638.984186,
-    "previous_hash": "67dcdfbbf692...",
-    "block_number": 13
-  },
-  "info": "remover",
-  "transaction": {
-    "timestamp": "1732734638.984186",
-    "operation": "remove",
-    "batch_size": 2,
-    "successful_extractions": 2,
-    "failed_extractions": 0,
-    "average_ber": 0.0,
-    "transaction_dict": {
-      "9c8a15d306a28...": {
-        "operation_type": "removal",
-        "original_image_hash": "59fc674587589...",
-        "watermarked_image_hash": "9c8a15d306a28...",
-        "recovered_image_hash": "59fc674587589...",
-        "extraction_ber": 0.0,
-        "original_watermark": "5d99700ef982...",
-        "extracted_watermark": "5d99700ef982...",
-        "removal_parameters": {
-          "kernel": [[0, 0.25, 0], [0.25, 0, 0.25], [0, 0.25, 0]],
-          "stride": 3,
-          "t_hi": 0,
-          "bit_depth": 16
+"20": {
+    "header": {
+      "timestamp": 1733849191.278383,
+      "previous_hash": "ebe5eef037d10de7806858f1d79b9fcd2320d9faa98e38d51a0209fadc7d6de8",
+      "block_number": 20
+    },
+    "info": "remover",
+    "transaction": {
+      "timestamp": "1733849191.2781",
+      "operation": "remove",
+      "batch_size": 2,
+      "successful_extractions": 2,
+      "failed_extractions": 0,
+      "average_ber": 0.0,
+      "transaction_dict": {
+        "4e0e3c49e9dd137d4ad9cfbaf44ad4552f3ff1adced6836f3e051357afbefb07": {
+          "timestamp": "1733849191.182436",
+          "operation_type": "removal",
+          "original_image_hash": "59fc6745875897a58887bd29283399290a88903051fe4de3b47973b54506bf1e",
+          "watermarked_image_hash": "4e0e3c49e9dd137d4ad9cfbaf44ad4552f3ff1adced6836f3e051357afbefb07",
+          "recovered_image_hash": "59fc6745875897a58887bd29283399290a88903051fe4de3b47973b54506bf1e",
+          "extraction_ber": 0.0,
+          "original_watermark": "1c916ce243c11e48ce63a27e33c473f6aa5876e770c8dd4fdfa6d45e78a386fb",
+          "extracted_watermark": "1c916ce243c11e48ce63a27e33c473f6aa5876e770c8dd1",
+          "removal_parameters": {
+            "kernel": [
+              [
+                0,
+                0.25,
+                0
+              ],
+              [
+                0.25,
+                0,
+                0.25
+              ],
+              [
+                0,
+                0.25,
+                0
+              ]
+            ],
+            "stride": 3,
+            "t_hi": 0.0,
+            "bit_depth": 16
+          }
+        },
+        "b4899305e47f91153e16e0c38b25d896997dcb032ec91efbe096910198684e4a": {
+          "timestamp": "1733849191.246527",
+          "operation_type": "removal",
+          "original_image_hash": "3937b31c3c8f214852fb414a5bdd5410ed5b7cd7f0cc5b114bccb45650999ff4",
+          "watermarked_image_hash": "b4899305e47f91153e16e0c38b25d896997dcb032ec91efbe096910198684e4a",
+          "recovered_image_hash": "3937b31c3c8f214852fb414a5bdd5410ed5b7cd7f0cc5b114bccb45650999ff4",
+          "extraction_ber": 0.0,
+          "original_watermark": "1c916ce243c11e48ce63a27e33c473f6aa5876e770c8dd4fdfa6d45e78a386fb",
+          "extracted_watermark": "1c916ce243c11e48ce63a27e33c473f6aa5876e770c81",
+          "removal_parameters": {
+            "kernel": [
+              [
+                0,
+                0.25,
+                0
+              ],
+              [
+                0.25,
+                0,
+                0.25
+              ],
+              [
+                0,
+                0.25,
+                0
+              ]
+            ],
+            "stride": 3,
+            "t_hi": 0.0,
+            "bit_depth": 16
+          }
         }
       }
-    }
+    },
+    "hash": "c4f1a82913394ba7596c381e077b6241fc56eda9dd52e4a2d1ebd8ed329786e8"
   }
-}
 ```
 
 ## Extraction vs Removal Operations
