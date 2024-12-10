@@ -421,6 +421,16 @@ docker-compose up -d watermarking-api
  http://localhost:8000/redoc
 ```
 
+Note that if these parameters are not entered, then here are their default values: 
+```bash
+kernel: Optional[List[List[float]]]= [[0, 1 / 4, 0], [1 / 4, 0, 1 / 4], [0, 1 / 4, 0]]
+blockchain_path: str="blockchain/database/blockchainDB.json"
+data_type: str = "dcm"
+stride: int = 3
+t_hi: float = 0
+bit_depth: int = 16
+```
+
 ### 2. Testing Embedding
 ```bash
 curl -X 'POST' \
