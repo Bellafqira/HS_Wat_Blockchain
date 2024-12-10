@@ -495,4 +495,4 @@ MIT License - See LICENSE file for details
 
 1. Sun, Y., et al. (2023). FRRW: A feature extraction-based robust and reversible watermarking scheme utilizing zernike moments and histogram shifting.
 2. Naskar, R., & Subhra Chakraborty, R. (2013). Histogram‐bin‐shifting‐based reversible watermarking for colour images.
-3. [histogram_shiffting_predictions](https://github.com/Bellafqira/histogram_shiffting_predictions/tree/master) - Original watermarking scheme implementation by Reda Bellafqira
+3. [histogram_shiffting_predictions](https://github.com/Bellafqira/histogram_shiffting_predictions/tree/master) - Original watermarking scheme implementation by @Bellafqira
