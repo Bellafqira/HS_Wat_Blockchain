@@ -309,48 +309,61 @@ services:
 
 2. Start the service:
 ```bash
-docker-compose up -d
+docker-compose up -d watermarking-api 
 ```
 
 ## Testing the Docker Container
 
-### 1. Basic Health Check
+### 1. Interactive API documentation at
 ```bash
-curl http://localhost:8000/health
+ http://localhost:8000/docs
+```
+ Alternative documentation at
+```bash
+ http://localhost:8000/redoc
 ```
 
 ### 2. Testing Embedding
 ```bash
-curl -X POST http://localhost:8000/api/watermark/embed \
-  -H "Content-Type: application/json" \
+curl -X 'POST' \
+  'http://localhost:8000/api/watermark/embed' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
   -d '{
-    "data_path": "/app/database/images/test.dcm",
-    "save_path": "/app/results/watermarked.dcm",
-    "message": "test_watermark",
-    "data_type": "dcm"
-  }'
+  "data_path": "database/images_dcm",
+  "save_path": "results/watermarked_images/images_dcm",
+  "message": "string",
+  "data_type": "dcm",
+  "stride": 3,
+  "t_hi": 0,
+  "bit_depth": 16
+}'
 ```
 
 ### 3. Testing Extraction
 ```bash
-curl -X POST http://localhost:8000/api/watermark/extract \
-  -H "Content-Type: application/json" \
+curl -X 'POST' \
+  'http://localhost:8000/api/watermark/extract' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
   -d '{
-    "data_path": "/app/results/watermarked.dcm",
-    "data_type": "dcm"
-  }'
+  "data_path": "results/watermarked_images/images_dcm/watermarked_CT000000.dcm",
+  "data_type": "dcm"
+}'
 ```
 
 ### 4. Testing Removal
 ```bash
-curl -X POST http://localhost:8000/api/watermark/remove \
-  -H "Content-Type: application/json" \
+curl -X 'POST' \
+  'http://localhost:8000/api/watermark/remove' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
   -d '{
-    "data_path": "/app/results/watermarked.dcm",
-    "save_path": "/app/results/recovered.dcm",
-    "ext_wat_path": "/app/results/watermark.npy",
-    "data_type": "dcm"
-  }'
+  "data_path": "results/watermarked_images/images_dcm",
+  "save_path": "results/recovered_images/images_dcm",
+  "ext_wat_path": "results/recovered_watermark/watermark_ext",
+  "data_type": "dcm"
+}'
 ```
 
 ## Contributing
