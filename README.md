@@ -56,7 +56,7 @@ embed_config = config_gen.generate_embed_config(
     data_path="database/images",
     save_path="results/watermarked_images",
     message="WATERMARK_MESSAGE",
-    blockchain_path="blockchain/database/blockchainDB.json",
+    blockchain_path="blockchain/database/blockchainDB_2.json",
     data_type="dcm"  # or "jpg", "png", etc.
 )
 ```

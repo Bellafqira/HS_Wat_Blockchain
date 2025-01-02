@@ -38,7 +38,7 @@ class WatermarkExtractor:
             self,
             image: np.ndarray,
             transaction: dict
-    ) -> np.ndarray:
+    ):
         """Extract watermark from image using given parameters."""
         # Setup parameters
         kernel = np.array(transaction["kernel"])
@@ -49,6 +49,8 @@ class WatermarkExtractor:
         # Initialize arrays
         recovered_image = deepcopy(image)
         extracted_bits = []
+        extracted_bits_256 = np.zeros((256, 2)).astype(np.float64)
+        pos_wat = 0
         overflow_positions = []
 
         # Generate secret positions
@@ -63,11 +65,12 @@ class WatermarkExtractor:
         k_height, k_width = kernel.shape
         out_height = (height - k_height) // stride + 1
         out_width = (width - k_width) // stride + 1
-
+        idx_secret_key = 0
         # Extraction loop
         for y in range(out_height):
             for x in range(out_width):
-                if not secret_positions[y * out_width + x]:
+                if secret_positions[idx_secret_key] == 0:
+                    idx_secret_key +=1
                     continue
 
                 # Get region coordinates
@@ -84,23 +87,29 @@ class WatermarkExtractor:
 
                 error_w = center - neighbors
                 if error_w < 0:
+                    idx_secret_key += 1
                     continue
 
                 if center == max_pixel_value - 1:
                     overflow_positions.append((y_center, x_center))
+                    idx_secret_key += 1
                     continue
 
                 # Extract bit and update image
                 error, bit = self._extraction_value(error_w, t_hi)
                 if bit in (0, 1):
                     extracted_bits.append(bit)
-
+                    extracted_bits_256[idx_secret_key%256][0] += bit
+                    extracted_bits_256[idx_secret_key%256][1] += 1
+                    if y< 1:
+                        print("ext pos", y, x, bit)
+                idx_secret_key += 1
                 recovered_image[y_center, x_center] = neighbors + error
 
         if not overflow_positions:
-            return np.array(extracted_bits)
+            return np.array(extracted_bits), np.array(extracted_bits_256)
         else:
-            return np.array(extracted_bits[:-len(overflow_positions) - 1])
+            return np.array(extracted_bits[:-len(overflow_positions) - 1]), np.array(extracted_bits_256)
 
     @staticmethod
     def _extraction_value(error_w: int, thresh_hi: int) -> Tuple[int, Optional[int]]:
@@ -124,14 +133,18 @@ class WatermarkExtractor:
                 if block.info == "embedder":
                     for _, transaction_current in block.transaction["transaction_dict"].items():
                         if transaction_current["data_type"] == self.config.data_type:
-                            extracted_watermark = self._extract_watermark_from_image(image, transaction_current)
+                            extracted_watermark, extracted_watermark_256 = self._extract_watermark_from_image(image, transaction_current)
 
                             original_watermark = hex_to_binary_array(transaction_current["watermark"])
                             extracted_watermark = reshape_and_compute(extracted_watermark)
-                            ber = compute_ber(extracted_watermark, original_watermark)
-                            if ber < 0.2:
+                            # print("ext wat", [int(i/j>0.5) for i, j in extracted_watermark_256])
+                            # print("original wat", original_watermark)
+                            extracted_watermark_256 = np.array([int(i/j>0.5) for i, j in extracted_watermark_256])
+
+                            ber = compute_ber(extracted_watermark_256, original_watermark)
+                            if ber < 0.4:
                                 history = {
-                                    'ber': int(ber),
+                                    'ber': ber,
                                     'block_number': block.header.block_number,
                                     'block_hash': block.hash,
                                     'timestamp': block.header.timestamp,

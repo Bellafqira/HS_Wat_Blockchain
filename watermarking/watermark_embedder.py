@@ -153,21 +153,25 @@ class WatermarkEmbedder:
                             image_np[center_y, center_x] += 1
                             overflow_array.append(1)
                             idx_secret_key += 1
+                            idx_wat += 1
                             continue
                         elif center == (self.max_pixel_value - 1):
                             overflow_array.append(0)
                             idx_secret_key += 1
+                            idx_wat += 1
                             continue
 
                         error_w, bit = self._embedding_value(error, self.config.t_hi, watermark[idx_wat % 256])
 
                         if error_w is not None:
                             image_np[center_y, center_x] = neighbours + error_w
-                            if bit in (0, 1):
-                                idx_wat += 1
+
+                            if bit in (0, 1) and y<1:
+                                print("pos embed =", y, x, bit)
+                                # idx_wat += 1
 
                 idx_secret_key += 1
-
+                idx_wat += 1
 
         print(f"Initial embedding complete. Handling {len(overflow_array)} overflow cases...")
         # Handle overflow cases

@@ -68,7 +68,7 @@ class Block:
 
 
 class Blockchain:
-    def __init__(self, blockchain_file: str = "blockchainDB.json"):
+    def __init__(self, blockchain_file: str = "blockchainDB_2.json"):
         self.blockchain_file = Path(blockchain_file)
         self.blocks: Dict[str, Block] = {}
         self.load_blockchain()
