@@ -50,7 +50,7 @@ async def generate_embed_config(request: EmbedRequest):
             data_path=request.data_path,
             save_path=request.save_path,
             message=request.message,
-            blockchain_path="blockchain/database/blockchainDB_2.json",
+            blockchain_path="blockchain/database/blockchainDB.json",
             data_type=request.data_type,
             kernel=request.kernel,
             stride=request.stride,
@@ -67,7 +67,7 @@ async def generate_extract_config(request: ExtractRequest):
     try:
         config = config_generator.generate_extract_config(
             data_path=request.data_path,
-            blockchain_path="blockchain/database/blockchainDB_2.json",
+            blockchain_path="blockchain/database/blockchainDB.json",
             data_type=request.data_type
         )
         return {"status": "success", "config": config.__dict__}
@@ -82,7 +82,7 @@ async def generate_remove_config(request: RemoveRequest):
             data_path=request.data_path,
             save_path=request.save_path,
             ext_wat_path=request.ext_wat_path,
-            blockchain_path="blockchain/database/blockchainDB_2.json",
+            blockchain_path="blockchain/database/blockchainDB.json",
             data_type=request.data_type
         )
         return {"status": "success", "config": config.__dict__}
@@ -98,7 +98,7 @@ async def embed_watermark(request: EmbedRequest):
             data_path=request.data_path,
             save_path=request.save_path,
             message=request.message,
-            blockchain_path="blockchain/database/blockchainDB_2.json",
+            blockchain_path="blockchain/database/blockchainDB.json",
             data_type=request.data_type,
             kernel=request.kernel,
             stride=request.stride,
@@ -127,7 +127,7 @@ async def extract_watermark(request: ExtractRequest):
         # Generate config
         config = config_generator.generate_extract_config(
             data_path=request.data_path,
-            blockchain_path="blockchain/database/blockchainDB_2.json",
+            blockchain_path="blockchain/database/blockchainDB.json",
             data_type=request.data_type
         )
 
@@ -151,7 +151,7 @@ async def remove_watermark(request: RemoveRequest):
             data_path=request.data_path,
             save_path=request.save_path,
             ext_wat_path=request.ext_wat_path,
-            blockchain_path="blockchain/database/blockchainDB_2.json",
+            blockchain_path="blockchain/database/blockchainDB.json",
             data_type=request.data_type
         )
 

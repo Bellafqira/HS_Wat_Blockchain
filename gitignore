@@ -61,6 +61,7 @@ log/
 *.swp
 *.swo
 *~
+*.gz
 
 # VSCode (in case you also use it)
 .vscode/
