@@ -1,8 +1,8 @@
 {
     "data_path": "database/images_png",
     "save_path": "results/watermarked_images/images_png",
-    "blockchain_path": "blockchain/database/blockchainDB.json",
-    "message": "ID_Paroma_Med",
+    "blockchain_path": "blockchain/database/blockchainDB_3.json",
+    "message": "IMT",
     "kernel": [
         [
             0,
@@ -21,7 +21,7 @@
         ]
     ],
     "stride": 3,
-    "t_hi": 0,
+    "t_hi": 0.0,
     "bit_depth": 8,
     "data_type": "png",
     "operation_type": "embedding"

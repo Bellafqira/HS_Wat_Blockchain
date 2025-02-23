@@ -1,6 +1,6 @@
 {
     "data_path": "results/watermarked_images/images_png/watermarked_Normal01.png",
-    "blockchain_path": "blockchain/database/blockchainDB.json",
+    "blockchain_path": "blockchain/database/blockchainDB_3.json",
     "data_type": "png",
     "operation_type": "extraction"
 }

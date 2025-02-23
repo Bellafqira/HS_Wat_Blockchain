@@ -101,8 +101,8 @@ class WatermarkExtractor:
                     extracted_bits.append(bit)
                     extracted_bits_256[idx_secret_key%256][0] += bit
                     extracted_bits_256[idx_secret_key%256][1] += 1
-                    if y< 1:
-                        print("ext pos", y, x, bit)
+                    # if y< 1:
+                    #     print("ext pos", y, x, bit)
                 idx_secret_key += 1
                 recovered_image[y_center, x_center] = neighbors + error
 
@@ -140,6 +140,8 @@ class WatermarkExtractor:
                             # print("ext wat", [int(i/j>0.5) for i, j in extracted_watermark_256])
                             # print("original wat", original_watermark)
                             extracted_watermark_256 = np.array([int(i/j>0.5) for i, j in extracted_watermark_256])
+
+                            print("extracted_watermark_256", original_watermark)
 
                             ber = compute_ber(extracted_watermark_256, original_watermark)
                             if ber < 0.4:

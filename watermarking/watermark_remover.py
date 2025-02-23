@@ -1,9 +1,10 @@
 import hashlib
 from copy import deepcopy
-from typing import Union, Tuple, Dict, Optional
+from typing import Union, Tuple, Dict, Optional, Any
 from dataclasses import dataclass
 import numpy as np
 from PIL import Image
+from numpy import ndarray, dtype
 from pydicom import dcmread
 from datetime import datetime
 
@@ -49,7 +50,7 @@ class WatermarkRemove:
         image = Image.open(self.config.data_path).convert('L')
         return np.array(image), None
 
-    def _extract_watermark(self, image: np.ndarray, transaction: Dict) -> Tuple[np.ndarray, np.ndarray, list]:
+    def _extract_watermark(self, image: np.ndarray, transaction: Dict):
         """Extract watermark from image using transaction parameters."""
         # Setup parameters
         kernel = np.array(transaction["kernel"])
@@ -61,6 +62,7 @@ class WatermarkRemove:
         recovered_image = deepcopy(image)
         extracted_bits = []
         overflow_positions = []
+        extracted_bits_256 = np.zeros((256, 2)).astype(np.float64)
 
         # Generate secret positions
         image_size = image.size
@@ -75,10 +77,12 @@ class WatermarkRemove:
         out_height = (height - k_height) // stride + 1
         out_width = (width - k_width) // stride + 1
 
+        idx_secret_key = 0
         # Extraction loop
         for y in range(out_height):
             for x in range(out_width):
-                if not secret_positions[y * out_width + x]:
+                if secret_positions[idx_secret_key] == 0:
+                    idx_secret_key += 1
                     continue
 
                 # Get region coordinates
@@ -95,20 +99,27 @@ class WatermarkRemove:
 
                 error_w = center - neighbors
                 if error_w < 0:
+                    idx_secret_key += 1
                     continue
 
                 if center == max_pixel_value - 1:
                     overflow_positions.append((y_center, x_center))
+                    idx_secret_key += 1
                     continue
 
                 # Extract bit and update image
                 error, bit = self._extraction_value(error_w, t_hi)
                 if bit in (0, 1):
                     extracted_bits.append(bit)
-
+                    extracted_bits_256[idx_secret_key%256][0] += bit
+                    extracted_bits_256[idx_secret_key%256][1] += 1
+                    # if bit in (0, 1) and y < 1:
+                    #     print("pos embed =", y, x, bit)
+                        # idx_wat += 1
+                idx_secret_key += 1
                 recovered_image[y_center, x_center] = neighbors + error
-
-        return recovered_image, np.array(extracted_bits), overflow_positions
+        extracted_watermark_256 = np.array([int(i / j > 0.5) for i, j in extracted_bits_256])
+        return recovered_image, np.array(extracted_bits), overflow_positions, extracted_watermark_256
 
     @staticmethod
     def _extraction_value(error_w: int, thresh_hi: int) -> Tuple[int, Optional[int]]:
@@ -121,7 +132,7 @@ class WatermarkRemove:
     @staticmethod
     def _handle_overflow(recovered_image: np.ndarray,
                          extracted_bits: np.ndarray,
-                         overflow_positions: list) -> Tuple[np.ndarray, np.ndarray]:
+                         overflow_positions: list) -> ndarray:
         """Handle overflow positions in extraction."""
         if not overflow_positions:
             return recovered_image, extracted_bits
@@ -130,7 +141,7 @@ class WatermarkRemove:
         for idx, pos in enumerate(overflow_positions):
             recovered_image[pos] -= overflow_wat[idx]
 
-        return recovered_image, extracted_bits[:-len(overflow_positions) - 1]
+        return recovered_image
 
     def _save_results(self,
                       recovered_image: np.ndarray,
@@ -158,27 +169,27 @@ class WatermarkRemove:
             raise ValueError("No matching watermark found in blockchain")
 
         # Extract watermark and recover image
-        recovered_image, extracted_bits, overflow_positions = self._extract_watermark(
+        recovered_image, extracted_bits, overflow_positions, extracted_bits_256 = self._extract_watermark(
             image, transaction
         )
 
         # Handle overflow
-        recovered_image, extracted_watermark = self._handle_overflow(
+        recovered_image = self._handle_overflow(
             recovered_image, extracted_bits, overflow_positions
         )
 
         # Compare watermarks
         original_watermark = hex_to_binary_array(transaction["watermark"])
 
-        original_watermark = np.tile(
-            original_watermark,
-            len(extracted_watermark) // len(original_watermark) + 1
-        )[:len(extracted_watermark)]
+        # original_watermark = np.tile(
+        #     original_watermark,
+        #     len(extracted_watermark) // len(original_watermark) + 1
+        # )[:len(extracted_watermark)]
 
         # Calculate BER
-        ber = compute_ber(original_watermark, extracted_watermark)
+        ber = compute_ber(original_watermark, extracted_bits_256)
 
-        extracted_watermark = bits_to_hexdigest(extracted_watermark[:256])
+        extracted_watermark = bits_to_hexdigest(extracted_bits_256[:256])
 
         # Create removal transaction
         removal_transaction = RemovalTransaction(

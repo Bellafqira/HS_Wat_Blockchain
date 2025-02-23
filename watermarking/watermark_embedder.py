@@ -121,6 +121,8 @@ class WatermarkEmbedder:
         watermark = generate_watermark(self.config.message, self.secret_key)
         timestamp = str(datetime.now().timestamp())
 
+        print("watermark==", watermark)
+
         # Generate secret positions using the 256-bit key
         image_size = image_np.size
         secret_positions = self._generate_secret_positions(image_size)
@@ -166,9 +168,9 @@ class WatermarkEmbedder:
                         if error_w is not None:
                             image_np[center_y, center_x] = neighbours + error_w
 
-                            if bit in (0, 1) and y<1:
-                                print("pos embed =", y, x, bit)
-                                # idx_wat += 1
+                            # if bit in (0, 1) and y<1:
+                            #     print("pos embed =", y, x, bit)
+                            #     # idx_wat += 1
 
                 idx_secret_key += 1
                 idx_wat += 1

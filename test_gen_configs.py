@@ -14,7 +14,7 @@ def main():
             data_path="database/images_dcm",
             save_path="results/watermarked_images/images_dcm",
             message="ID_Paroma_Med",
-            blockchain_path="blockchain/database/blockchainDB_2.json",
+            blockchain_path="blockchain/database/blockchainDB_3.json",
             data_type="dcm"
         )
         print("Generated embedding configuration:")
@@ -23,7 +23,7 @@ def main():
         # Generate extraction configuration
         extract_config = config_gen.generate_extract_config(
             data_path="database/images_dcm/CT000000.dcm",
-            blockchain_path="blockchain/database/blockchainDB_2.json",
+            blockchain_path="blockchain/database/blockchainDB_3.json",
             data_type="dcm"
         )
         print("\nGenerated extraction configuration:")
